@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarkItDown Studio - Chuyển đổi tài liệu sang Markdown</title>
+  <meta name="description" content="Giao diện web cục bộ chuyển đổi tài liệu đa định dạng (PDF, DOCX, XLSX, PPTX, v.v.) sang Markdown bằng MarkItDown.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Marked.js for Markdown Rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body class="dark-theme">
+  <div class="app-container">
+    
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <path d="M9 15l2 2 4-4"></path>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>MarkItDown <span>Studio</span></h1>
+          <p class="brand-tagline">Chuyển đổi tài liệu đa định dạng sang Markdown tức thì</p>
+        </div>
+      </div>
+      
+      <div class="header-actions">
+        <span class="badge-status">
+          <span class="status-dot"></span> MarkItDown v0.1.8 Local
+        </span>
+        <button id="themeToggleBtn" class="icon-btn" title="Đổi giao diện Sáng / Tối">
+          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      
+      <!-- Input Panel -->
+      <section class="card input-card">
+        
+        <!-- Tab Selector: File Upload vs File Path -->
+        <div class="tab-header">
+          <button class="tab-btn active" id="tabUploadBtn" data-target="uploadTab">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="17 8 12 3 7 8"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            Kéo thả / Chọn tệp
+          </button>
+          <button class="tab-btn" id="tabPathBtn" data-target="pathTab">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Nhập đường dẫn trên máy
+          </button>
+        </div>
+
+        <!-- Tab 1: Upload Drag & Drop -->
+        <div class="tab-pane active" id="uploadTab">
+          <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" class="file-input-hidden" multiple>
+            <div class="drop-zone-content">
+              <div class="drop-icon-wrapper">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <h3 class="drop-title">Kéo thả tệp vào đây</h3>
+              <p class="drop-subtitle">hoặc <span class="highlight-link">bấm để duyệt tìm tệp</span> từ máy tính của bạn</p>
+              
+              <div class="supported-formats">
+                <span class="format-tag">PDF</span>
+                <span class="format-tag">DOCX</span>
+                <span class="format-tag">XLSX / XLS</span>
+                <span class="format-tag">PPTX</span>
+                <span class="format-tag">HTML</span>
+                <span class="format-tag">CSV / TXT</span>
+                <span class="format-tag">Audio (MP3/WAV)</span>
+                <span class="format-tag">ZIP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: File Path on Disk -->
+        <div class="tab-pane" id="pathTab">
+          <div class="path-input-group">
+            <label for="localPathInput" class="input-label">Dán đường dẫn tệp trên ổ đĩa (tiện lợi cho tệp sách hoặc tài liệu dung lượng lớn):</label>
+            <div class="path-field-row">
+              <input type="text" id="localPathInput" class="text-input" placeholder='Ví dụ: E:\download\Value Stream 4.0.pdf'>
+            </div>
+            <p class="field-hint">Mẹo: Bạn có thể click chuột phải vào file trong Windows Explorer và chọn <strong>"Copy as path"</strong> rồi dán vào đây.</p>
+          </div>
+        </div>
+
+        <!-- Selected Files List -->
+        <div class="selected-files-container" id="selectedFilesContainer" style="display: none;">
+          <div class="section-subheading">
+            <span>Tệp đã chọn (<span id="fileCountBadge">0</span>)</span>
+            <button class="clear-btn" id="clearFilesBtn">Xóa tất cả</button>
+          </div>
+          <div class="file-list" id="fileList"></div>
+        </div>
+
+        <!-- Conversion Action Bar -->
+        <div class="conversion-action-bar">
+          <div class="options-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <label class="custom-checkbox">
+              <input type="checkbox" id="reflowCheck" checked>
+              <span class="checkbox-box"></span>
+              <span class="checkbox-label">Tự động nối dòng cùng đoạn văn (<strong>Smart Paragraph Reflow</strong> - Sửa lỗi ngắt dòng PDF)</span>
+            </label>
+            <label class="custom-checkbox">
+              <input type="checkbox" id="autoDownloadCheck">
+              <span class="checkbox-box"></span>
+              <span class="checkbox-label">Tự động tải file <code>.md</code> về sau khi convert xong</span>
+            </label>
+          </div>
+
+          <button id="convertBtn" class="btn btn-primary" disabled>
+            <span class="btn-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+              </svg>
+            </span>
+            <span class="btn-text">Bắt đầu chuyển đổi</span>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- Processing Loading State -->
+      <section class="card loading-card" id="loadingCard" style="display: none;">
+        <div class="loading-content">
+          <div class="loading-spinner"></div>
+          <h3 id="loadingStatusText">Đang xử lý tài liệu với MarkItDown...</h3>
+          <p id="loadingDetailText">Đang giải nén văn bản, cấu trúc bảng biểu và hình ảnh...</p>
+          <div class="timer-badge">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Thời gian: <span id="elapsedTimer">0.0s</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Result Card -->
+      <section class="card result-card" id="resultCard" style="display: none;">
+        
+        <!-- Result Header / Stats -->
+        <div class="result-header">
+          <div class="result-meta">
+            <div class="meta-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+            </div>
+            <div>
+              <h2 id="resultFileName" class="result-title">ket-qua.md</h2>
+              <div class="stats-row">
+                <span class="stat-item" id="statWords">0 từ</span>
+                <span class="stat-divider">•</span>
+                <span class="stat-item" id="statChars">0 ký tự</span>
+                <span class="stat-divider">•</span>
+                <span class="stat-item" id="statSize">0 KB</span>
+                <span class="stat-divider">•</span>
+                <span class="stat-item" id="statTime">0.0s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="result-actions">
+            <!-- View Mode Switcher -->
+            <div class="view-mode-group">
+              <button class="view-btn active" id="viewPreviewBtn" title="Xem dạng hiển thị">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                Xem trước
+              </button>
+              <button class="view-btn" id="viewRawBtn" title="Xem mã nguồn Markdown thô">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="16 18 22 12 16 6"></polyline>
+                  <polyline points="8 6 2 12 8 18"></polyline>
+                </svg>
+                Mã nguồn
+              </button>
+            </div>
+
+            <!-- Copy Action -->
+            <button class="btn btn-secondary" id="copyMarkdownBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Sao chép</span>
+            </button>
+
+            <!-- Download Action -->
+            <button class="btn btn-primary" id="downloadMarkdownBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Tải file .md</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Result Viewport -->
+        <div class="result-viewport">
+          <!-- Rendered HTML Pane -->
+          <div class="rendered-markdown-view" id="renderedMarkdownView"></div>
+          
+          <!-- Raw Code Pane -->
+          <div class="raw-markdown-view" id="rawMarkdownView" style="display: none;">
+            <textarea id="rawMarkdownTextarea" readonly spellcheck="false"></textarea>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- History Section -->
+      <section class="card history-card" id="historyCard" style="display: none;">
+        <div class="section-subheading">
+          <span>Lịch sử chuyển đổi trong phiên</span>
+          <button class="clear-btn" id="clearHistoryBtn">Xóa lịch sử</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </section>
+
+    </main>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+      <div class="toast-icon"></div>
+      <div class="toast-message" id="toastMessage"></div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Phát triển dựa trên <a href="https://github.com/microsoft/markitdown" target="_blank" rel="noopener">Microsoft MarkItDown</a> • Chạy 100% cục bộ trên máy tính của bạn</p>
+    </footer>
+
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
