@@ -12,6 +12,7 @@ import webbrowser
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_file
 from markitdown import MarkItDown
+from smart_pdf_converter import convert_pdf_to_clean_markdown
 
 # Thiết lập thư mục gốc
 BASE_DIR = Path(__file__).resolve().parent
@@ -130,16 +131,18 @@ def convert_uploaded_file():
     try:
         file.save(temp_path)
 
-        result = md_converter.convert(temp_path)
-        markdown_text = result.text_content if hasattr(result, 'text_content') else str(result)
-
-        if do_reflow and original_filename.lower().endswith('.pdf'):
-            markdown_text = smart_reflow_markdown(markdown_text)
+        if original_filename.lower().endswith('.pdf') and do_reflow:
+            markdown_text = convert_pdf_to_clean_markdown(temp_path)
+        else:
+            result = md_converter.convert(temp_path)
+            markdown_text = result.text_content if hasattr(result, 'text_content') else str(result)
+            if do_reflow and original_filename.lower().endswith('.pdf'):
+                markdown_text = smart_reflow_markdown(markdown_text)
 
         return jsonify({
             "success": True,
             "filename": original_filename,
-            "title": getattr(result, 'title', None),
+            "title": None,
             "markdown": markdown_text
         })
     except Exception as e:
@@ -183,17 +186,19 @@ def convert_local_path():
         }), 400
 
     try:
-        result = md_converter.convert(clean_path)
-        markdown_text = result.text_content if hasattr(result, 'text_content') else str(result)
         filename = os.path.basename(clean_path)
-
-        if do_reflow and filename.lower().endswith('.pdf'):
-            markdown_text = smart_reflow_markdown(markdown_text)
+        if filename.lower().endswith('.pdf') and do_reflow:
+            markdown_text = convert_pdf_to_clean_markdown(clean_path)
+        else:
+            result = md_converter.convert(clean_path)
+            markdown_text = result.text_content if hasattr(result, 'text_content') else str(result)
+            if do_reflow and filename.lower().endswith('.pdf'):
+                markdown_text = smart_reflow_markdown(markdown_text)
 
         return jsonify({
             "success": True,
             "filename": filename,
-            "title": getattr(result, 'title', None),
+            "title": None,
             "markdown": markdown_text
         })
     except Exception as e:
